@@ -1,0 +1,1939 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#090d1a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta property="og:title" content="Swingo — Tek Dokunuş Sarkaç Oyunu" />
+  <meta property="og:description" content="Doğru açıda ipi bırak, lazer bariyerleri aş ve en yüksek skoru yap!" />
+  <meta property="og:type" content="website" />
+  <link rel="manifest" href="/manifest.json" />
+  <title>Swingo — Tek Dokunuş Sarkaç Oyunu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      overscroll-behavior: none;
+      background: #090d1a;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #f8fafc;
+      touch-action: none;
+    }
+
+    #game-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    /* Top HUD */
+    .hud-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: calc(14px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) 14px calc(16px + env(safe-area-inset-left));
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .hud-left, .hud-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 999px;
+      padding: 3px;
+      backdrop-filter: blur(10px);
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      color: #081022;
+      box-shadow: 0 2px 10px rgba(56, 189, 248, 0.35);
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      background: rgba(15, 23, 42, 0.72);
+      color: #e2e8f0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: transform 0.14s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(30, 41, 59, 0.88);
+      border-color: rgba(56, 189, 248, 0.5);
+    }
+
+    .icon-btn:active {
+      transform: scale(0.92);
+    }
+
+    .score-center {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .score-value {
+      font-size: clamp(36px, 6vw, 54px);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      text-shadow: 0 4px 20px rgba(56, 189, 248, 0.4);
+      transition: transform 0.12s ease;
+    }
+
+    .score-value.bump {
+      transform: scale(1.22);
+    }
+
+    .sub-pills {
+      margin-top: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .best-pill, .phase-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      padding: 3px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+      white-space: nowrap;
+    }
+
+    .best-pill span {
+      color: #fbbf24;
+    }
+
+    .phase-pill {
+      color: #7dd3fc;
+      border-color: rgba(56, 189, 248, 0.28);
+    }
+
+    .combo-badge {
+      margin-top: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fde047;
+      text-shadow: 0 2px 12px rgba(250, 204, 21, 0.55);
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: all 0.2s ease;
+    }
+
+    .combo-badge.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Wind indicator */
+    .wind-pill {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.76);
+      border: 1px solid rgba(56, 189, 248, 0.34);
+      color: #7dd3fc;
+      font-size: 12px;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+
+    .wind-pill.visible {
+      opacity: 1;
+    }
+
+    /* Overlays */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(6, 10, 22, 0.58);
+      backdrop-filter: blur(6px);
+      z-index: 20;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+
+    .overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 410px;
+      background: linear-gradient(180deg, rgba(20, 29, 54, 0.95), rgba(11, 17, 34, 0.97));
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 24px;
+      padding: 24px 22px 20px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    }
+
+    .badge-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .card h1 {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff 10%, #38bdf8 55%, #fbbf24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card p {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: #cbd5e1;
+      margin-bottom: 14px;
+    }
+
+    .anchor-legend {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 12px;
+      padding: 7px 10px;
+      font-size: 11.5px;
+      color: #cbd5e1;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .dot.cyan { background: #38bdf8; box-shadow: 0 0 8px #38bdf8; }
+    .dot.gold { background: #fbbf24; box-shadow: 0 0 8px #fbbf24; }
+    .dot.red  { background: #f87171; box-shadow: 0 0 8px #f87171; }
+    .dot.violet { background: #a855f7; box-shadow: 0 0 8px #a855f7; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 14px;
+      padding: 10px 6px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+
+    .stat-num {
+      font-size: 22px;
+      font-weight: 900;
+      color: #f8fafc;
+    }
+
+    .stat-num.gold { color: #fbbf24; }
+    .stat-num.cyan { color: #38bdf8; }
+
+    .miss-reason {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fca5a5;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.28);
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+    }
+
+    .primary-btn {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 800;
+      color: #081022;
+      background: linear-gradient(135deg, #38bdf8, #fbbf24);
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.32);
+      transition: transform 0.12s ease, filter 0.15s ease;
+    }
+
+    .primary-btn:hover {
+      filter: brightness(1.06);
+    }
+
+    .primary-btn:active {
+      transform: scale(0.97);
+    }
+
+    .secondary-btn {
+      width: 100%;
+      margin-top: 10px;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: #7dd3fc;
+      background: rgba(15, 23, 42, 0.72);
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.12s ease;
+    }
+
+    .secondary-btn:hover {
+      background: rgba(30, 41, 59, 0.9);
+    }
+
+    .secondary-btn:active {
+      transform: scale(0.97);
+    }
+
+    .share-toast {
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #86efac;
+      min-height: 18px;
+    }
+
+    .hint-line {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .new-record-banner {
+      display: none;
+      font-size: 12px;
+      font-weight: 800;
+      color: #fef08a;
+      background: rgba(234, 179, 8, 0.18);
+      border: 1px solid rgba(250, 204, 21, 0.45);
+      border-radius: 999px;
+      padding: 4px 12px;
+      margin-bottom: 10px;
+    }
+
+    .new-record-banner.show {
+      display: inline-block;
+    }
+
+    .tap-guide {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.76);
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      color: #e2e8f0;
+      font-size: 13px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      z-index: 10;
+      white-space: nowrap;
+    }
+
+    .tap-guide.visible {
+      opacity: 1;
+    }
+
+    @media (max-width: 520px) {
+      .hud-top { padding: 10px 12px; }
+      .mode-btn { font-size: 11px; padding: 5px 9px; }
+      .score-center { top: 56px; }
+      .card { padding: 20px 16px 16px; }
+      .anchor-legend { grid-template-columns: 1fr; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-wrapper">
+    <canvas id="game-canvas" aria-label="Swingo oyun alanı"></canvas>
+
+    <!-- Top HUD -->
+    <div class="hud-top">
+      <div class="hud-left">
+        <div class="mode-switch" role="tablist" aria-label="Oyun modu">
+          <button id="btn-mode-endless" class="mode-btn active" type="button">Sonsuz</button>
+          <button id="btn-mode-daily" class="mode-btn" type="button">Günün Parkuru</button>
+        </div>
+      </div>
+
+      <div class="score-center">
+        <div id="score-display" class="score-value">0</div>
+        <div class="sub-pills">
+          <div class="best-pill">Rekor <span id="best-display">0</span></div>
+          <div id="phase-display" class="phase-pill">Alışma</div>
+        </div>
+        <div id="combo-display" class="combo-badge">MÜKEMMEL x2</div>
+      </div>
+
+      <div class="hud-right">
+        <button id="btn-mute" class="icon-btn" type="button" title="Sesi Aç / Kapat" aria-label="Sesi Aç veya Kapat">
+          <svg id="icon-sound-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg id="icon-sound-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+        <button id="btn-restart-top" class="icon-btn" type="button" title="Yeniden Başlat (R)" aria-label="Yeniden Başlat">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="tap-guide" class="tap-guide">Parlayan yayda (35°–65°) bırak: maksimum yükselme</div>
+    <div id="wind-pill" class="wind-pill">Arka Rüzgar →</div>
+
+    <!-- Start Overlay -->
+    <div id="start-overlay" class="overlay visible">
+      <div class="card">
+        <div class="badge-tag">Tek Dokunuş • Sarkaç Arcade</div>
+        <h1>Swingo</h1>
+        <p>İleri salınımda <strong>35°–65° sapan yayında</strong> ipi bırak, dikey itkiyle yukarıdaki kancalara rahatça tırman. Tam merkeze uçarsan <strong>Mükemmel (+2)</strong> kombo kazanırsın.</p>
+        <div class="anchor-legend">
+          <div class="legend-item"><span class="dot cyan"></span><span><strong>Standart:</strong> Dengeli (4,6 sn)</span></div>
+          <div class="legend-item"><span class="dot gold"></span><span><strong>Altın:</strong> Geniş merkez + hız</span></div>
+          <div class="legend-item"><span class="dot red"></span><span><strong>Kırılgan:</strong> 2,2 sn'de kopar</span></div>
+          <div class="legend-item"><span class="dot violet"></span><span><strong>Mor İtici:</strong> +%40 dikey çıkış</span></div>
+        </div>
+        <button id="btn-start" class="primary-btn" type="button">OYUNA BAŞLA</button>
+        <div class="hint-line">Ekrana dokun, tıkla veya Boşluk tuşuna bas</div>
+      </div>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div id="gameover-overlay" class="overlay">
+      <div class="card">
+        <div id="new-record-banner" class="new-record-banner">YENİ REKOR!</div>
+        <h1>Tur Bitti</h1>
+        <div id="miss-reason" class="miss-reason">Kancayı santimlerle kaçırdın</div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Skor</div>
+            <div id="final-score" class="stat-num">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Rekor</div>
+            <div id="final-best" class="stat-num gold">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Mükemmel</div>
+            <div id="final-perfect" class="stat-num cyan">0</div>
+          </div>
+        </div>
+        <button id="btn-retry" class="primary-btn" type="button">TEKRAR DENE</button>
+        <button id="btn-share" class="secondary-btn" type="button">SKORU ARKADAŞLARINLA PAYLAŞ</button>
+        <div id="share-toast" class="share-toast" aria-live="polite"></div>
+        <div class="hint-line">Hızlı tekrar: Boşluk tuşu veya dokun</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // --- DOM Elements ---
+      const canvas = document.getElementById('game-canvas');
+      const ctx = canvas.getContext('2d');
+      const scoreDisplay = document.getElementById('score-display');
+      const bestDisplay = document.getElementById('best-display');
+      const phaseDisplay = document.getElementById('phase-display');
+      const comboDisplay = document.getElementById('combo-display');
+      const tapGuide = document.getElementById('tap-guide');
+      const windPill = document.getElementById('wind-pill');
+
+      const startOverlay = document.getElementById('start-overlay');
+      const gameoverOverlay = document.getElementById('gameover-overlay');
+      const newRecordBanner = document.getElementById('new-record-banner');
+      const missReasonEl = document.getElementById('miss-reason');
+      const finalScoreEl = document.getElementById('final-score');
+      const finalBestEl = document.getElementById('final-best');
+      const finalPerfectEl = document.getElementById('final-perfect');
+
+      const btnStart = document.getElementById('btn-start');
+      const btnRetry = document.getElementById('btn-retry');
+      const btnShare = document.getElementById('btn-share');
+      const shareToast = document.getElementById('share-toast');
+      const btnMute = document.getElementById('btn-mute');
+      const btnRestartTop = document.getElementById('btn-restart-top');
+      const btnModeEndless = document.getElementById('btn-mode-endless');
+      const btnModeDaily = document.getElementById('btn-mode-daily');
+      const iconSoundOn = document.getElementById('icon-sound-on');
+      const iconSoundOff = document.getElementById('icon-sound-off');
+
+      // --- GDD Physics Constants (Virtual World Height = 720) ---
+      const WORLD_H = 720;
+      const SWING_G = 1660;
+      const FLY_G_UP = 890;      // GDD: lighter upward gravity for clean climbing
+      const FLY_G_DOWN = 1180;   // GDD: crisp rhythmic descent
+      const TARGET_SWING_AMP = 1.20;
+      const LAUNCH_BOOST = 1.23;
+      const SWEET_MIN_DEG = 35;
+      const SWEET_MAX_DEG = 65;
+      const COYOTE_MAX = 0.045;  // tight 45ms grace window
+      const COYOTE_PAD = 6;      // crisp edge tolerance
+
+      // --- Audio Engine (Web Audio API) ---
+      let audioCtx = null;
+      let isMuted = false;
+
+      function initAudio() {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) {
+            audioCtx = new AudioContextClass();
+          }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(function () {});
+        }
+      }
+
+      function playTone(freqStart, freqEnd, duration, type, gainVal) {
+        if (isMuted || !audioCtx) return;
+        try {
+          const now = audioCtx.currentTime;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type || 'sine';
+          osc.frequency.setValueAtTime(freqStart, now);
+          if (freqEnd && freqEnd !== freqStart) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(20, freqEnd), now + duration);
+          }
+          gain.gain.setValueAtTime(gainVal || 0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + duration);
+        } catch (e) {}
+      }
+
+      function sfxRelease(isBoosted, isSweet) {
+        if (isBoosted) {
+          playTone(280, 780, 0.18, 'triangle', 0.16);
+        } else if (isSweet) {
+          playTone(300, 620, 0.13, 'triangle', 0.14);
+        } else {
+          playTone(240, 440, 0.10, 'triangle', 0.11);
+        }
+      }
+
+      function sfxSnap(combo, isPerfect) {
+        const base = 360 + Math.min(combo, 10) * 42;
+        playTone(base, base * 1.15, 0.12, 'sine', 0.16);
+        if (isPerfect) {
+          setTimeout(function () {
+            playTone(base * 1.5, base * 1.85, 0.18, 'triangle', 0.16);
+          }, 55);
+        }
+      }
+
+      function sfxTick() {
+        playTone(760, 620, 0.045, 'square', 0.045);
+      }
+
+      function sfxFail() {
+        playTone(300, 95, 0.34, 'sawtooth', 0.13);
+      }
+
+      // --- Seeded PRNG for Daily Mode ---
+      function getDailySeed() {
+        const d = new Date();
+        return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+      }
+
+      function createRng(seed) {
+        let s = seed >>> 0;
+        return function () {
+          s = (s + 0x6D2B79F5) >>> 0;
+          let t = Math.imul(s ^ (s >>> 15), 1 | s);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      // --- Storage ---
+      function loadBest(m) {
+        try {
+          const val = localStorage.getItem('swingo_best_' + m) || localStorage.getItem('pendulum_snap_v2_best_' + m);
+          return val ? parseInt(val, 10) || 0 : 0;
+        } catch (e) {
+          return 0;
+        }
+      }
+
+      function saveBest(m, val) {
+        try {
+          localStorage.setItem('swingo_best_' + m, String(val));
+        } catch (e) {}
+      }
+
+      // --- Difficulty Phase Helper (Snappier Arcade Curve) ---
+      function getPhaseName(sc) {
+        if (sc <= 2) return 'Alışma';
+        if (sc <= 8) return 'Ritim';
+        if (sc <= 18) return 'Baskı';
+        return 'Ustalık';
+      }
+
+      // --- Game State ---
+      let mode = 'endless';
+      let rng = Math.random;
+      let gameState = 'menu'; // 'menu' | 'swinging' | 'flying' | 'dying' | 'gameover'
+      let score = 0;
+      let bestScore = loadBest(mode);
+      let combo = 0;
+      let perfectCount = 0;
+      let newRecordThisRun = false;
+      let missReason = 'Kancayı kaçırdın';
+      let lastDeathTime = 0;
+      let deathFreezeTimer = 0;
+      let nextGoldSpeedBonus = false;
+      let brokenByFragile = false;
+
+      // Coyote catch state
+      let coyoteIdx = -1;
+      let coyoteTimer = 0;
+
+      // Viewport scaling (portrait-aware so mobile screens always show full jump arc)
+      let viewW = window.innerWidth;
+      let viewH = window.innerHeight;
+      let scale = 1;
+      let worldW = 1280;
+      let worldOffsetY = 0;
+
+      // Camera & juice
+      let camX = 0;
+      let shakeTime = 0;
+      let shakeMag = 0;
+      let windForce = 0;
+      let targetWind = 0;
+
+      // Entities
+      let anchors = [];
+      let obstacles = [];
+      let lastVerticalDir = 1;
+      let currentAnchorIdx = 0;
+      let hangTimer = 0;
+      let lastTickSec = -1;
+
+      const player = {
+        x: 0,
+        y: 0,
+        vx: 0,
+        vy: 0,
+        theta: -0.95,
+        omega: 2.25,
+        ropeLen: 126,
+        targetRopeLen: 126,
+        radius: 16,
+        trail: []
+      };
+
+      let particles = [];
+      let popups = [];
+      let stars = [];
+      let buildings = [];
+
+      // --- Background Props ---
+      function initBackdrop() {
+        stars = [];
+        for (let i = 0; i < 65; i++) {
+          stars.push({
+            x: Math.random() * 2400,
+            y: Math.random() * (WORLD_H * 0.65),
+            r: 0.8 + Math.random() * 1.8,
+            a: 0.25 + Math.random() * 0.65,
+            twinkle: Math.random() * Math.PI * 2
+          });
+        }
+        buildings = [];
+        let bx = 0;
+        for (let i = 0; i < 42; i++) {
+          const w = 48 + Math.random() * 74;
+          const h = 80 + Math.random() * 170;
+          buildings.push({ x: bx, w: w, h: h });
+          bx += w + 8 + Math.random() * 14;
+        }
+      }
+
+      // --- GDD Anchor Generation with Forced Elevation Contrast & Obstacles ---
+      function pickAnchorType(index) {
+        if (index <= 2) return 'standard';
+        const r = rng();
+        if (index <= 8) {
+          if (r < 0.25) return 'boost';
+          if (r < 0.50) return 'gold';
+          if (index >= 5 && r < 0.68) return 'fragile';
+          return 'standard';
+        }
+        if (index <= 18) {
+          if (r < 0.30) return 'fragile';
+          if (r < 0.55) return 'gold';
+          if (r < 0.78) return 'boost';
+          return 'standard';
+        }
+        if (r < 0.38) return 'fragile';
+        if (r < 0.68) return 'gold';
+        if (r < 0.86) return 'boost';
+        return 'standard';
+      }
+
+      function getBaseCatchRadius(index) {
+        if (index <= 2) return 68 - index * 2;             // 68 -> 64
+        if (index <= 8) return 64 - (index - 2) * 1.5;     // 64 -> 55
+        if (index <= 18) return 55 - (index - 8) * 0.8;    // 55 -> 47
+        return Math.max(42, 47 - (index - 18) * 0.35);     // 47 -> 42
+      }
+
+      function createAnchor(index, prevAnchor) {
+        if (index === 0) {
+          return {
+            x: 180,
+            y: 265,
+            baseY: 265,
+            type: 'standard',
+            catchRadius: 68,
+            perfectRadius: 22,
+            maxHang: 4.2,
+            bobAmp: 0,
+            bobSpeed: 0,
+            bobPhase: 0,
+            snapped: true,
+            pulse: 0
+          };
+        }
+
+        const type = pickAnchorType(index);
+        const prevIsBoost = prevAnchor && prevAnchor.type === 'boost';
+
+        // Force meaningful elevation change every jump (no flat lines!)
+        // Alternate up (-1) and down (+1), respecting screen bounds [135, 395]
+        let dir = -lastVerticalDir;
+        if (prevAnchor.baseY < 195) dir = 1;       // near top -> force drop
+        else if (prevAnchor.baseY > 335) dir = -1; // near bottom -> force climb
+        lastVerticalDir = dir;
+
+        let deltaY;
+        if (dir < 0) {
+          // Climbing UP: guaranteed reachable within GDD envelope (60-92px, or 95-125px from Boost!)
+          const minClimb = prevIsBoost ? 85 : 58;
+          const maxClimb = prevIsBoost ? 124 : 92;
+          deltaY = -(minClimb + rng() * (maxClimb - minClimb));
+        } else {
+          // Diving DOWN: dramatic 75-145px drop
+          deltaY = 75 + rng() * 70;
+        }
+
+        let targetY = Math.max(135, Math.min(395, prevAnchor.baseY + deltaY));
+        const climbAmount = prevAnchor.baseY - targetY;
+
+        // Horizontal spacing: narrower when climbing UP, wider on dives
+        const diff = Math.min(index / 24, 1);
+        let minDx, maxDx;
+        if (climbAmount > 30) {
+          minDx = 215 + diff * 25;
+          maxDx = 265 + diff * 25;
+        } else {
+          minDx = 255 + diff * 55;
+          maxDx = 325 + diff * 70;
+        }
+        const dx = minDx + rng() * (maxDx - minDx);
+
+        let catchRadius = getBaseCatchRadius(index);
+        let perfectRadius = 21;
+        let maxHang = 3.8;
+
+        if (type === 'gold') {
+          catchRadius = Math.max(40, catchRadius * 0.85);
+          perfectRadius = 27;
+        } else if (type === 'fragile') {
+          maxHang = 2.0; // crisp 2.0s fragile snap
+        } else if (type === 'boost') {
+          catchRadius = Math.min(68, catchRadius + 3);
+        }
+
+        const canBob = index >= 4 && type !== 'fragile' && rng() < (index <= 10 ? 0.35 : 0.52);
+
+        const newAnchor = {
+          x: prevAnchor.x + dx,
+          y: targetY,
+          baseY: targetY,
+          type: type,
+          catchRadius: catchRadius,
+          perfectRadius: perfectRadius,
+          maxHang: maxHang,
+          bobAmp: canBob ? 22 + rng() * 24 : 0,
+          bobSpeed: canBob ? 1.8 + rng() * 1.1 : 0,
+          bobPhase: rng() * Math.PI * 2,
+          snapped: false,
+          pulse: 0
+        };
+
+        // Spawn a readable neon laser barrier between anchors starting at index 3!
+        if (index >= 3 && rng() < (index <= 8 ? 0.55 : 0.78)) {
+          const midX = prevAnchor.x + dx * (0.46 + rng() * 0.14);
+          // Place barrier either rising from floor (forcing high arc) or hanging from ceiling (forcing low dive)
+          const fromTop = climbAmount < -25 && rng() < 0.5;
+          if (fromTop) {
+            const wallBottom = Math.max(85, Math.min(prevAnchor.baseY, targetY) - 65);
+            obstacles.push({ x: midX, y: 0, w: 14, h: wallBottom, fromTop: true });
+          } else {
+            const safeFloorY = Math.max(prevAnchor.baseY, targetY) + 155;
+            if (safeFloorY < WORLD_H - 90) {
+              obstacles.push({ x: midX, y: safeFloorY, w: 14, h: WORLD_H - safeFloorY, fromTop: false });
+            }
+          }
+        }
+
+        return newAnchor;
+      }
+
+      function ensureAnchors() {
+        while (anchors.length < currentAnchorIdx + 8) {
+          const prev = anchors.length > 0 ? anchors[anchors.length - 1] : null;
+          anchors.push(createAnchor(anchors.length, prev));
+        }
+      }
+
+      // --- Launch Velocity Calculator (Shared by Physics & Trajectory Preview!) ---
+      function computeLaunchVelocity(anchor) {
+        const L = player.ropeLen;
+        const deg = player.theta * (180 / Math.PI);
+        const forward = player.omega > 0;
+        const isBoostAnchor = anchor && anchor.type === 'boost';
+
+        let boostMult = LAUNCH_BOOST;
+        if (nextGoldSpeedBonus) {
+          boostMult *= 1.10; // GDD: Gold bullseye +10% next launch speed
+        }
+
+        let vx = Math.cos(player.theta) * player.omega * L * boostMult;
+        let vy = -Math.sin(player.theta) * player.omega * L * boostMult;
+
+        // GDD: Dynamic vertical slingshot lift peaking in 35°-65° sweet spot!
+        let lift = -60;
+        let isSweet = false;
+        if (forward && deg >= SWEET_MIN_DEG && deg <= SWEET_MAX_DEG) {
+          lift = -148;
+          isSweet = true;
+        } else if (forward && deg > 12 && deg < 82) {
+          const distFromSweet = deg < SWEET_MIN_DEG ? (SWEET_MIN_DEG - deg) / 23 : (deg - SWEET_MAX_DEG) / 17;
+          const t = Math.max(0, 1 - distFromSweet);
+          lift = -60 - t * 88;
+        }
+
+        // GDD: Violet Boost Anchor adds +40% upward vertical boost!
+        if (isBoostAnchor) {
+          vy = Math.min(vy, -120) * 1.40 + lift * 1.25;
+        } else {
+          vy += lift;
+        }
+
+        // Ensure clean forward push when releasing forward
+        if (forward && vx < 255) {
+          vx = 255;
+        }
+
+        return { vx: vx, vy: vy, isSweet: isSweet, isBoosted: isBoostAnchor };
+      }
+
+      // --- Particles & Popups ---
+      function spawnParticles(x, y, color, count, speedMult) {
+        const mult = speedMult || 1;
+        for (let i = 0; i < count; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = (60 + Math.random() * 210) * mult;
+          particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            life: 0.35 + Math.random() * 0.4,
+            maxLife: 0.75,
+            r: 2.2 + Math.random() * 3.6,
+            color: color
+          });
+        }
+      }
+
+      function spawnPopup(x, y, text, color) {
+        popups.push({
+          x: x,
+          y: y,
+          text: text,
+          color: color || '#ffffff',
+          life: 0.95,
+          maxLife: 0.95
+        });
+      }
+
+      function triggerShake(mag, duration) {
+        shakeMag = Math.max(shakeMag, mag);
+        shakeTime = Math.max(shakeTime, duration);
+      }
+
+      // --- HUD Updates ---
+      function updateHud() {
+        scoreDisplay.textContent = String(score);
+        bestDisplay.textContent = String(bestScore);
+        phaseDisplay.textContent = getPhaseName(score);
+        if (combo >= 2) {
+          comboDisplay.textContent = 'MÜKEMMEL x' + combo;
+          comboDisplay.classList.add('visible');
+        } else {
+          comboDisplay.classList.remove('visible');
+        }
+      }
+
+      function bumpScore() {
+        scoreDisplay.classList.remove('bump');
+        void scoreDisplay.offsetWidth;
+        scoreDisplay.classList.add('bump');
+        setTimeout(function () {
+          scoreDisplay.classList.remove('bump');
+        }, 140);
+      }
+
+      function updateWindDisplay() {
+        if (Math.abs(targetWind) < 10) {
+          windPill.classList.remove('visible');
+        } else {
+          windPill.textContent = targetWind > 0 ? 'Arka Rüzgar →' : '← Karşı Rüzgar';
+          windPill.classList.add('visible');
+        }
+      }
+
+      // --- Reset / Start Run ---
+      function resetGame(startImmediately) {
+        rng = mode === 'daily' ? createRng(getDailySeed()) : Math.random;
+        bestScore = loadBest(mode);
+        score = 0;
+        combo = 0;
+        perfectCount = 0;
+        newRecordThisRun = false;
+        missReason = 'Kancayı kaçırdın';
+        windForce = 0;
+        targetWind = 0;
+        nextGoldSpeedBonus = false;
+        brokenByFragile = false;
+        coyoteIdx = -1;
+        coyoteTimer = 0;
+        particles = [];
+        popups = [];
+        anchors = [];
+        obstacles = [];
+        lastVerticalDir = 1;
+        currentAnchorIdx = 0;
+        hangTimer = 0;
+        lastTickSec = -1;
+        deathFreezeTimer = 0;
+
+        ensureAnchors();
+        const a0 = anchors[0];
+        player.ropeLen = 126;
+        player.targetRopeLen = 126;
+        player.theta = -0.95;
+        player.omega = 2.2;
+        player.x = a0.x + Math.sin(player.theta) * player.ropeLen;
+        player.y = a0.y + Math.cos(player.theta) * player.ropeLen;
+        player.vx = 0;
+        player.vy = 0;
+        player.trail = [];
+
+        camX = a0.x - worldW * 0.25;
+
+        gameoverOverlay.classList.remove('visible');
+        newRecordBanner.classList.remove('show');
+        shareToast.textContent = '';
+        updateHud();
+        updateWindDisplay();
+
+        if (startImmediately) {
+          startOverlay.classList.remove('visible');
+          gameState = 'swinging';
+          tapGuide.classList.add('visible');
+        } else {
+          startOverlay.classList.add('visible');
+          gameState = 'menu';
+          tapGuide.classList.remove('visible');
+        }
+      }
+
+      // --- Catch / Snap Helper ---
+      function performSnap(caughtIdx, isCoyote) {
+        const skipped = caughtIdx - currentAnchorIdx - 1;
+        const target = anchors[caughtIdx];
+
+        const speed = Math.hypot(player.vx, player.vy) || 1;
+        const toCenterX = target.x - player.x;
+        const toCenterY = target.y - player.y;
+        const rayCross = Math.abs(toCenterX * player.vy - toCenterY * player.vx) / speed;
+        const isPerfect = !isCoyote && rayCross <= target.perfectRadius;
+
+        currentAnchorIdx = caughtIdx;
+        target.snapped = true;
+        target.pulse = 1;
+        hangTimer = 0;
+        lastTickSec = -1;
+        coyoteIdx = -1;
+        coyoteTimer = 0;
+        brokenByFragile = false;
+
+        // Pendulum entry
+        const entryDist = Math.hypot(player.x - target.x, player.y - target.y);
+        player.ropeLen = Math.max(76, Math.min(138, entryDist));
+        player.targetRopeLen = 122;
+        player.theta = Math.atan2(player.x - target.x, player.y - target.y);
+        let omega = (player.vx * Math.cos(player.theta) - player.vy * Math.sin(player.theta)) / player.ropeLen;
+        if (Math.abs(omega) < 1.7) {
+          omega = (omega >= 0 ? 1 : -1) * 2.0;
+        }
+        player.omega = Math.max(-3.6, Math.min(3.6, omega));
+        gameState = 'swinging';
+
+        // Scoring & anchor bonuses
+        let gained = 1;
+        if (skipped > 0) {
+          gained = 3;
+          combo += 1;
+          perfectCount += 1;
+          spawnPopup(target.x, target.y - 36, 'SÜPER ATLAYIŞ! +3', '#c084fc');
+          spawnParticles(target.x, target.y, '#c084fc', 24, 1.2);
+          triggerShake(6, 0.16);
+          sfxSnap(combo + 2, true);
+        } else if (isPerfect) {
+          gained = 2;
+          combo += 1;
+          perfectCount += 1;
+          if (target.type === 'gold') {
+            nextGoldSpeedBonus = true;
+            spawnPopup(target.x, target.y - 36, 'ALTIN MÜKEMMEL! +2', '#fde047');
+          } else {
+            spawnPopup(target.x, target.y - 36, 'MÜKEMMEL! +2', '#fde047');
+          }
+          spawnParticles(target.x, target.y, '#fde047', 20, 1.05);
+          triggerShake(4.5, 0.12);
+          sfxSnap(combo, true);
+        } else {
+          combo = 0;
+          const popText = target.type === 'boost' ? '+1 • İTİCİ HAZIR' : (target.type === 'fragile' ? '+1 • ÇABUK!' : '+1');
+          const popColor = target.type === 'boost' ? '#d8b4fe' : (target.type === 'fragile' ? '#fca5a5' : '#7dd3fc');
+          spawnPopup(target.x, target.y - 32, popText, popColor);
+          spawnParticles(target.x, target.y, popColor, 12, 0.8);
+          sfxSnap(0, false);
+        }
+
+        score += gained;
+        bumpScore();
+        updateHud();
+        ensureAnchors();
+
+        // Wind activates in Baskı phase (Score 9+) every 4 points
+        if (score >= 9 && score % 4 === 0) {
+          const r = rng();
+          if (r < 0.30) targetWind = 0;
+          else if (r < 0.65) targetWind = 90;
+          else targetWind = -80;
+          updateWindDisplay();
+        }
+      }
+
+      // --- Player Input Action ---
+      function handlePrimaryAction() {
+        initAudio();
+
+        if (gameState === 'menu') {
+          resetGame(true);
+          return;
+        }
+
+        if (gameState === 'gameover') {
+          if (performance.now() - lastDeathTime > 320) {
+            resetGame(true);
+          }
+          return;
+        }
+
+        if (gameState === 'swinging') {
+          const curAnchor = anchors[currentAnchorIdx];
+          const launch = computeLaunchVelocity(curAnchor);
+          player.vx = launch.vx;
+          player.vy = launch.vy;
+          nextGoldSpeedBonus = false;
+          gameState = 'flying';
+          tapGuide.classList.remove('visible');
+          sfxRelease(launch.isBoosted, launch.isSweet);
+
+          if (launch.isBoosted) {
+            spawnParticles(player.x, player.y, '#c084fc', 18, 1.1);
+            spawnPopup(player.x, player.y - 24, 'YUKARI İTKİ!', '#d8b4fe');
+            triggerShake(4, 0.12);
+          } else if (launch.isSweet) {
+            spawnParticles(player.x, player.y, '#fde047', 13, 0.85);
+          } else {
+            spawnParticles(player.x, player.y, '#7dd3fc', 9, 0.65);
+          }
+        }
+      }
+
+      function triggerGameOver(reason) {
+        if (gameState === 'dying' || gameState === 'gameover') return;
+        missReason = reason;
+        gameState = 'dying';
+        deathFreezeTimer = 0.35;
+        lastDeathTime = performance.now();
+        sfxFail();
+        triggerShake(10, 0.24);
+        spawnParticles(player.x, player.y, '#f87171', 24, 1.15);
+
+        if (score > bestScore) {
+          bestScore = score;
+          saveBest(mode, bestScore);
+          newRecordThisRun = true;
+        }
+        updateHud();
+      }
+
+      function showGameOverScreen() {
+        gameState = 'gameover';
+        missReasonEl.textContent = missReason;
+        finalScoreEl.textContent = String(score);
+        finalBestEl.textContent = String(bestScore);
+        finalPerfectEl.textContent = String(perfectCount);
+        if (newRecordThisRun && score > 0) {
+          newRecordBanner.classList.add('show');
+        } else {
+          newRecordBanner.classList.remove('show');
+        }
+        gameoverOverlay.classList.add('visible');
+      }
+
+      // --- Physics Update ---
+      function update(dt, elapsed) {
+        // Update bobbing anchors
+        for (let i = Math.max(0, currentAnchorIdx - 2); i < anchors.length; i++) {
+          const a = anchors[i];
+          if (a.bobAmp > 0) {
+            a.y = a.baseY + Math.sin(elapsed * a.bobSpeed + a.bobPhase) * a.bobAmp;
+          }
+          if (a.pulse > 0) {
+            a.pulse = Math.max(0, a.pulse - dt * 2.5);
+          }
+        }
+
+        windForce += (targetWind - windForce) * Math.min(1, dt * 2.5);
+
+        if (shakeTime > 0) {
+          shakeTime = Math.max(0, shakeTime - dt);
+          if (shakeTime === 0) shakeMag = 0;
+        }
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vy += 420 * dt;
+          p.life -= dt;
+          if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        for (let i = popups.length - 1; i >= 0; i--) {
+          const pop = popups[i];
+          pop.y -= 52 * dt;
+          pop.life -= dt;
+          if (pop.life <= 0) popups.splice(i, 1);
+        }
+
+        if (gameState === 'dying') {
+          deathFreezeTimer -= dt;
+          if (deathFreezeTimer <= 0) {
+            showGameOverScreen();
+          }
+          return;
+        }
+
+        if (gameState === 'gameover') {
+          return;
+        }
+
+        if (gameState === 'swinging' || gameState === 'menu') {
+          const a = anchors[currentAnchorIdx];
+          if (!a) return;
+
+          player.ropeLen += (player.targetRopeLen - player.ropeLen) * Math.min(1, dt * 9);
+          const L = player.ropeLen;
+
+          // Progressive swing tempo scaling with score
+          const phaseSpeedMult = 1.0 + Math.min(score, 35) * 0.008;
+          const alpha = -(SWING_G * phaseSpeedMult / L) * Math.sin(player.theta);
+          player.omega += alpha * dt;
+
+          const targetE = (SWING_G * phaseSpeedMult / L) * (1 - Math.cos(TARGET_SWING_AMP));
+          const currE = 0.5 * player.omega * player.omega + (SWING_G * phaseSpeedMult / L) * (1 - Math.cos(player.theta));
+          if (Math.abs(player.omega) > 0.02) {
+            const corr = Math.max(-2.6, Math.min(2.6, (targetE - currE) * 0.95));
+            player.omega += Math.sign(player.omega) * corr * dt;
+          }
+
+          player.theta += player.omega * dt;
+          if (Math.abs(player.theta) > 1.38) {
+            player.theta = Math.sign(player.theta) * 1.38;
+            player.omega *= -0.75;
+          }
+
+          player.x = a.x + Math.sin(player.theta) * L;
+          player.y = a.y + Math.cos(player.theta) * L;
+
+          // Anchor tension countdown
+          if (gameState === 'swinging' && (score > 0 || a.type === 'fragile')) {
+            hangTimer += dt;
+            const remaining = a.maxHang - hangTimer;
+            const warnStart = a.type === 'fragile' ? 1.2 : 1.5;
+            if (remaining <= warnStart && remaining > 0) {
+              const sec = Math.ceil(remaining * 3.5);
+              if (sec !== lastTickSec) {
+                lastTickSec = sec;
+                sfxTick();
+              }
+            }
+            if (hangTimer >= a.maxHang) {
+              brokenByFragile = a.type === 'fragile';
+              player.vx = Math.cos(player.theta) * player.omega * L * 0.65;
+              player.vy = -Math.sin(player.theta) * player.omega * L * 0.65;
+              gameState = 'flying';
+              spawnParticles(a.x, a.y, '#f87171', 16, 0.9);
+              spawnPopup(a.x, a.y - 26, a.type === 'fragile' ? 'KIRILDI!' : 'İP KOPTU!', '#f87171');
+              sfxFail();
+            }
+          }
+        } else if (gameState === 'flying') {
+          // GDD Asymmetric gravity: lighter when climbing (vy < 0), crisp when falling
+          const g = player.vy < 0 ? FLY_G_UP : FLY_G_DOWN;
+          player.vx += windForce * dt;
+          player.vy += g * dt;
+          player.x += player.vx * dt;
+          player.y += player.vy * dt;
+
+          player.trail.push({ x: player.x, y: player.y, life: 0.28 });
+          if (player.trail.length > 26) player.trail.shift();
+
+          // Check direct capture or 60ms coyote edge capture on next 2 anchors
+          let caughtIdx = -1;
+          let grazedIdx = -1;
+          for (let j = currentAnchorIdx + 1; j <= Math.min(anchors.length - 1, currentAnchorIdx + 2); j++) {
+            const target = anchors[j];
+            const dist = Math.hypot(player.x - target.x, player.y - target.y);
+            if (dist <= target.catchRadius) {
+              caughtIdx = j;
+              break;
+            } else if (dist <= target.catchRadius + COYOTE_PAD) {
+              grazedIdx = j;
+            }
+          }
+
+          if (caughtIdx !== -1) {
+            performSnap(caughtIdx, false);
+          } else if (grazedIdx !== -1) {
+            if (coyoteIdx !== grazedIdx) {
+              coyoteIdx = grazedIdx;
+              coyoteTimer = COYOTE_MAX;
+            } else {
+              coyoteTimer -= dt;
+              if (coyoteTimer <= 0) {
+                performSnap(grazedIdx, true);
+              }
+            }
+          } else if (coyoteIdx !== -1) {
+            // Was grazing and just left edge within grace window -> fair snap!
+            const target = anchors[coyoteIdx];
+            const dist = Math.hypot(player.x - target.x, player.y - target.y);
+            if (dist <= target.catchRadius + COYOTE_PAD + 10) {
+              performSnap(coyoteIdx, true);
+            } else {
+              coyoteIdx = -1;
+              coyoteTimer = 0;
+            }
+          }
+
+          // Check neon laser barrier collision while flying
+          if (gameState === 'flying') {
+            for (let oi = 0; oi < obstacles.length; oi++) {
+              const ob = obstacles[oi];
+              const closestX = Math.max(ob.x - ob.w / 2, Math.min(player.x, ob.x + ob.w / 2));
+              const closestY = Math.max(ob.y, Math.min(player.y, ob.y + ob.h));
+              if (Math.hypot(player.x - closestX, player.y - closestY) < player.radius - 2) {
+                triggerGameOver('Lazer bariyere çarptın — fırlatma açısını ayarla');
+                break;
+              }
+            }
+          }
+
+          if (gameState === 'flying') {
+            const nextAnchor = anchors[currentAnchorIdx + 1];
+            if (player.y > WORLD_H + 30) {
+              if (brokenByFragile) {
+                triggerGameOver('Kırılgan kanca 2,2 sn içinde koptu — tek salınımda fırlat');
+              } else if (nextAnchor && player.x < nextAnchor.x - nextAnchor.catchRadius) {
+                triggerGameOver('Erken bıraktın — parlayan 35°–65° sapan yayını bekle');
+              } else if (nextAnchor && player.x > nextAnchor.x + nextAnchor.catchRadius) {
+                triggerGameOver('Kancayı aştın — biraz daha erken bırak');
+              } else {
+                triggerGameOver('Kancayı santimlerle kaçırdın');
+              }
+            } else if (player.y < -140) {
+              triggerGameOver('Çok dik fırlattın — açıyı biraz düşür');
+            } else if (player.x < camX - 90) {
+              triggerGameOver('Ters yöne savruldun — ileri salınımda bırak');
+            }
+          }
+        }
+
+        for (let i = player.trail.length - 1; i >= 0; i--) {
+          player.trail[i].life -= dt;
+          if (player.trail[i].life <= 0) player.trail.splice(i, 1);
+        }
+
+        const focusX = gameState === 'flying'
+          ? player.x - worldW * 0.30
+          : (anchors[currentAnchorIdx] ? anchors[currentAnchorIdx].x - worldW * 0.25 : 0);
+        camX += (focusX - camX) * Math.min(1, dt * 5.2);
+      }
+
+      // --- Rendering Helpers ---
+      function getAnchorPalette(type) {
+        if (type === 'gold') return { core: '#fbbf24', ring: 'rgba(251, 191, 36, 0.78)', fill: 'rgba(251, 191, 36, 0.09)' };
+        if (type === 'fragile') return { core: '#f87171', ring: 'rgba(248, 113, 113, 0.78)', fill: 'rgba(248, 113, 113, 0.09)' };
+        if (type === 'boost') return { core: '#a855f7', ring: 'rgba(168, 85, 247, 0.82)', fill: 'rgba(168, 85, 247, 0.12)' };
+        return { core: '#38bdf8', ring: 'rgba(56, 189, 248, 0.74)', fill: 'rgba(56, 189, 248, 0.08)' };
+      }
+
+      function drawSweetSpotArc(anchor) {
+        if (gameState !== 'swinging' || !anchor) return;
+        const ax = anchor.x - camX;
+        const L = player.ropeLen;
+        const deg = player.theta * (180 / Math.PI);
+        const inSweet = player.omega > 0 && deg >= SWEET_MIN_DEG && deg <= SWEET_MAX_DEG;
+
+        // Canvas angle: straight down is PI/2, swinging right subtracts theta
+        const startAng = Math.PI / 2 - (SWEET_MAX_DEG * Math.PI / 180);
+        const endAng = Math.PI / 2 - (SWEET_MIN_DEG * Math.PI / 180);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(ax, anchor.y, L, startAng, endAng);
+        ctx.strokeStyle = inSweet
+          ? (anchor.type === 'boost' ? 'rgba(216, 180, 254, 0.85)' : 'rgba(253, 224, 71, 0.82)')
+          : 'rgba(125, 211, 252, 0.24)';
+        ctx.lineWidth = inSweet ? 5 : 3;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function drawTrajectoryPreview() {
+        if (gameState !== 'swinging' || score > 2 || !anchors[currentAnchorIdx]) return;
+        const launch = computeLaunchVelocity(anchors[currentAnchorIdx]);
+        let vx = launch.vx;
+        let vy = launch.vy;
+        let px = player.x;
+        let py = player.y;
+        const step = 0.045;
+
+        ctx.save();
+        for (let i = 1; i <= 11; i++) {
+          vy += (vy < 0 ? FLY_G_UP : FLY_G_DOWN) * step;
+          px += vx * step;
+          py += vy * step;
+          const alpha = (1 - i / 12) * (score === 0 ? 0.62 : 0.34);
+          ctx.fillStyle = launch.isSweet
+            ? 'rgba(253, 224, 71, ' + alpha.toFixed(2) + ')'
+            : 'rgba(125, 211, 252, ' + alpha.toFixed(2) + ')';
+          ctx.beginPath();
+          ctx.arc(px - camX, py, 3.4 - i * 0.18, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawBoostChevrons(ax, ay, elapsed) {
+        const shift = (elapsed * 26) % 14;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(216, 180, 254, 0.72)';
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        for (let k = 0; k < 2; k++) {
+          const cy = ay - 18 - k * 10 - shift * 0.4;
+          ctx.beginPath();
+          ctx.moveTo(ax - 8, cy + 5);
+          ctx.lineTo(ax, cy - 3);
+          ctx.lineTo(ax + 8, cy + 5);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function render(elapsed) {
+        // Fill full viewport background first (covers portrait letterbox bands seamlessly)
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, viewH);
+        bgGrad.addColorStop(0, '#070b18');
+        bgGrad.addColorStop(0.55, '#111b36');
+        bgGrad.addColorStop(1, '#1d294d');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, viewW, viewH);
+
+        ctx.save();
+        ctx.translate(0, worldOffsetY);
+        ctx.scale(scale, scale);
+
+        // Parallax stars
+        for (let i = 0; i < stars.length; i++) {
+          const st = stars[i];
+          const sx = ((st.x - camX * 0.12) % 2400 + 2400) % 2400;
+          if (sx > worldW + 10) continue;
+          const tw = 0.55 + 0.45 * Math.sin(elapsed * 2.1 + st.twinkle);
+          ctx.fillStyle = 'rgba(226, 232, 240, ' + (st.a * tw).toFixed(2) + ')';
+          ctx.beginPath();
+          ctx.arc(sx, st.y, st.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Parallax skyline
+        const skylineSpan = 2600;
+        ctx.fillStyle = 'rgba(9, 14, 29, 0.62)';
+        for (let i = 0; i < buildings.length; i++) {
+          const b = buildings[i];
+          const bx = ((b.x - camX * 0.25) % skylineSpan + skylineSpan) % skylineSpan - 120;
+          if (bx > worldW + 20 || bx + b.w < -20) continue;
+          ctx.fillRect(bx, WORLD_H - b.h, b.w, b.h);
+        }
+
+        // Wind streaks
+        if (Math.abs(windForce) > 12) {
+          ctx.strokeStyle = 'rgba(125, 211, 252, 0.18)';
+          ctx.lineWidth = 2;
+          const dir = Math.sign(windForce);
+          for (let i = 0; i < 8; i++) {
+            const wy = 110 + i * 74;
+            const wx = (((elapsed * windForce * 4.5 + i * 230) % (worldW + 200)) + (worldW + 200)) % (worldW + 200) - 100;
+            ctx.beginPath();
+            ctx.moveTo(wx, wy);
+            ctx.lineTo(wx + dir * 64, wy);
+            ctx.stroke();
+          }
+        }
+
+        if (shakeTime > 0) {
+          const ox = (Math.random() - 0.5) * 2 * shakeMag;
+          const oy = (Math.random() - 0.5) * 2 * shakeMag;
+          ctx.translate(ox, oy);
+        }
+
+        // Bottom hazard glow
+        const abyss = ctx.createLinearGradient(0, WORLD_H - 70, 0, WORLD_H);
+        abyss.addColorStop(0, 'rgba(239, 68, 68, 0)');
+        abyss.addColorStop(1, 'rgba(239, 68, 68, 0.22)');
+        ctx.fillStyle = abyss;
+        ctx.fillRect(0, WORLD_H - 70, worldW, 70);
+
+        // Render neon laser barriers
+        for (let oi = 0; oi < obstacles.length; oi++) {
+          const ob = obstacles[oi];
+          const ox = ob.x - camX;
+          if (ox < -40 || ox > worldW + 40) continue;
+
+          ctx.save();
+          // Outer red neon glow
+          ctx.fillStyle = 'rgba(248, 113, 113, 0.22)';
+          ctx.fillRect(ox - ob.w, ob.y, ob.w * 2, ob.h);
+
+          // Core laser pillar
+          const barGrad = ctx.createLinearGradient(ox - ob.w / 2, 0, ox + ob.w / 2, 0);
+          barGrad.addColorStop(0, '#dc2626');
+          barGrad.addColorStop(0.5, '#fca5a5');
+          barGrad.addColorStop(1, '#dc2626');
+          ctx.fillStyle = barGrad;
+          ctx.fillRect(ox - ob.w / 2, ob.y, ob.w, ob.h);
+
+          // Glowing cap tip
+          const capY = ob.fromTop ? ob.y + ob.h : ob.y;
+          ctx.beginPath();
+          ctx.arc(ox, capY, ob.w * 0.65, 0, Math.PI * 2);
+          ctx.fillStyle = '#fecaca';
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Sweet-spot slingshot arc indicator on current anchor
+        if (anchors[currentAnchorIdx]) {
+          drawSweetSpotArc(anchors[currentAnchorIdx]);
+        }
+
+        // Draw Anchors
+        for (let i = Math.max(0, currentAnchorIdx - 2); i < anchors.length; i++) {
+          const a = anchors[i];
+          const ax = a.x - camX;
+          if (ax < -160 || ax > worldW + 180) continue;
+
+          const isCurrent = i === currentAnchorIdx;
+          const isNext = i === currentAnchorIdx + 1;
+          const pal = getAnchorPalette(a.type);
+
+          // Upcoming capture ring
+          if (i > currentAnchorIdx) {
+            const breathe = isNext ? Math.sin(elapsed * 4.2) * 3 : 0;
+            const r = a.catchRadius + breathe;
+
+            ctx.beginPath();
+            ctx.arc(ax, a.y, r, 0, Math.PI * 2);
+            ctx.fillStyle = isNext ? pal.fill : 'rgba(148, 163, 184, 0.04)';
+            ctx.fill();
+            ctx.lineWidth = isNext ? 2.5 : 1.5;
+            ctx.setLineDash(a.type === 'fragile' ? [4, 5] : (isNext ? [8, 6] : [5, 8]));
+            ctx.strokeStyle = isNext ? pal.ring : 'rgba(148, 163, 184, 0.25)';
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Inner perfect bullseye
+            if (isNext) {
+              ctx.beginPath();
+              ctx.arc(ax, a.y, a.perfectRadius, 0, Math.PI * 2);
+              ctx.strokeStyle = a.type === 'gold' ? 'rgba(253, 224, 71, 0.85)' : 'rgba(251, 191, 36, 0.55)';
+              ctx.lineWidth = a.type === 'gold' ? 2.2 : 1.6;
+              ctx.stroke();
+            }
+
+            // Upward boost chevrons for Violet Boost anchor
+            if (a.type === 'boost') {
+              drawBoostChevrons(ax, a.y, elapsed);
+            }
+          }
+
+          // Snap pulse ring
+          if (a.pulse > 0) {
+            ctx.beginPath();
+            ctx.arc(ax, a.y, 18 + (1 - a.pulse) * 65, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(250, 204, 21, ' + (a.pulse * 0.7).toFixed(2) + ')';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+          }
+
+          // Tension countdown ring on current anchor
+          if (isCurrent && gameState === 'swinging' && (score > 0 || a.type === 'fragile')) {
+            const showAfter = a.type === 'fragile' ? 0 : 1.2;
+            if (hangTimer > showAfter) {
+              const frac = Math.max(0, 1 - (hangTimer - showAfter) / (a.maxHang - showAfter));
+              ctx.beginPath();
+              ctx.arc(ax, a.y, 24, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * frac);
+              ctx.strokeStyle = (frac < 0.4 || a.type === 'fragile') ? '#f87171' : '#fbbf24';
+              ctx.lineWidth = 3.8;
+              ctx.stroke();
+            }
+          }
+
+          // Anchor hub
+          const jitterX = (isCurrent && a.type === 'fragile' && hangTimer > 0.8) ? (Math.random() - 0.5) * 3 : 0;
+          ctx.beginPath();
+          ctx.arc(ax + jitterX, a.y, isCurrent ? 11.5 : 9.5, 0, Math.PI * 2);
+          ctx.fillStyle = isCurrent ? pal.core : (isNext ? pal.core : '#64748b');
+          ctx.fill();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = '#0b1021';
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(ax + jitterX, a.y, 3.8, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+        }
+
+        drawTrajectoryPreview();
+
+        // Rope when swinging
+        if ((gameState === 'swinging' || gameState === 'menu') && anchors[currentAnchorIdx]) {
+          const a = anchors[currentAnchorIdx];
+          const ax = a.x - camX;
+          const px = player.x - camX;
+          const warn = (score > 0 || a.type === 'fragile') && hangTimer > a.maxHang - 1.1;
+
+          ctx.beginPath();
+          ctx.moveTo(ax, a.y);
+          ctx.lineTo(px, player.y);
+          ctx.strokeStyle = warn ? '#f87171' : (a.type === 'boost' ? '#d8b4fe' : 'rgba(226, 232, 240, 0.88)');
+          ctx.lineWidth = 3.2;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        }
+
+        // Motion trail
+        for (let i = 0; i < player.trail.length; i++) {
+          const tr = player.trail[i];
+          const ratio = tr.life / 0.28;
+          ctx.beginPath();
+          ctx.arc(tr.x - camX, tr.y, player.radius * ratio * 0.78, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(56, 189, 248, ' + (ratio * 0.36).toFixed(2) + ')';
+          ctx.fill();
+        }
+
+        // Player character
+        const px = player.x - camX;
+        const py = player.y;
+
+        const glow = ctx.createRadialGradient(px, py, 4, px, py, player.radius * 2.1);
+        glow.addColorStop(0, gameState === 'dying' ? 'rgba(248, 113, 113, 0.55)' : 'rgba(56, 189, 248, 0.45)');
+        glow.addColorStop(1, 'rgba(56, 189, 248, 0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.arc(px, py, player.radius * 2.1, 0, Math.PI * 2);
+        ctx.fill();
+
+        const bodyGrad = ctx.createRadialGradient(px - 5, py - 5, 2, px, py, player.radius);
+        if (gameState === 'dying') {
+          bodyGrad.addColorStop(0, '#fecaca');
+          bodyGrad.addColorStop(1, '#ef4444');
+        } else {
+          bodyGrad.addColorStop(0, '#ffffff');
+          bodyGrad.addColorStop(0.45, '#7dd3fc');
+          bodyGrad.addColorStop(1, '#0284c7');
+        }
+        ctx.fillStyle = bodyGrad;
+        ctx.beginPath();
+        ctx.arc(px, py, player.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.lineWidth = 2.4;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+
+        // Expressive eyes
+        let lookX = 3.5;
+        let lookY = -1;
+        if (gameState === 'flying') {
+          const spd = Math.hypot(player.vx, player.vy) || 1;
+          lookX = (player.vx / spd) * 4.5;
+          lookY = (player.vy / spd) * 4.5;
+        } else {
+          lookX = Math.cos(player.theta) * Math.sign(player.omega || 1) * 4;
+          lookY = -Math.sin(player.theta) * Math.sign(player.omega || 1) * 3;
+        }
+        ctx.fillStyle = '#081022';
+        ctx.beginPath();
+        ctx.arc(px + lookX - 3.2, py + lookY - 1, 2.3, 0, Math.PI * 2);
+        ctx.arc(px + lookX + 3.2, py + lookY - 1, 2.3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Particles
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          const alpha = Math.max(0, p.life / p.maxLife);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x - camX, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+
+        // Floating score popups
+        ctx.textAlign = 'center';
+        ctx.font = '800 18px Inter, sans-serif';
+        for (let i = 0; i < popups.length; i++) {
+          const pop = popups[i];
+          const alpha = Math.max(0, pop.life / pop.maxLife);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = '#081022';
+          ctx.fillText(pop.text, pop.x - camX + 1.5, pop.y + 1.5);
+          ctx.fillStyle = pop.color;
+          ctx.fillText(pop.text, pop.x - camX, pop.y);
+        }
+        ctx.globalAlpha = 1;
+
+        ctx.restore();
+      }
+
+      // --- Resize Handling ---
+      function updateCanvasSize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        viewW = window.innerWidth;
+        viewH = window.innerHeight;
+        canvas.width = Math.floor(viewW * dpr);
+        canvas.height = Math.floor(viewH * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        // Guarantee at least 480 virtual px horizontal width on portrait phones
+        scale = Math.min(viewH / WORLD_H, viewW / 480);
+        worldW = viewW / scale;
+        worldOffsetY = Math.max(0, (viewH - WORLD_H * scale) * 0.5);
+      }
+
+      function handleResize() {
+        updateCanvasSize();
+        if (anchors.length > 0) {
+          render(performance.now() / 1000);
+        }
+      }
+
+      // --- Main Loop ---
+      let rafId = null;
+      let lastTime = 0;
+
+      function loop(now) {
+        const dt = Math.min(0.04, (now - lastTime) / 1000 || 0.016);
+        lastTime = now;
+        update(dt, now / 1000);
+        render(now / 1000);
+        rafId = requestAnimationFrame(loop);
+      }
+
+      // --- Event Listeners ---
+      canvas.addEventListener('pointerdown', function (e) {
+        e.preventDefault();
+        handlePrimaryAction();
+      });
+
+      btnStart.addEventListener('click', function (e) {
+        e.stopPropagation();
+        initAudio();
+        resetGame(true);
+      });
+
+      btnRetry.addEventListener('click', function (e) {
+        e.stopPropagation();
+        initAudio();
+        resetGame(true);
+      });
+
+      function copyFallback(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+
+      btnShare.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const modeLabel = mode === 'daily' ? 'Günün Parkuru' : 'Sonsuz Mod';
+        const url = window.location.href && window.location.href.startsWith('http') ? window.location.href : '';
+        const text = 'Swingo (' + modeLabel + ') oyununda ' + score + ' puan yaptım! Sen geçebilir misin?' + (url ? ' ' + url : '');
+        if (navigator.share) {
+          navigator.share({ title: 'Swingo', text: text, url: url || undefined }).then(function () {
+            shareToast.textContent = 'Paylaşıldı!';
+          }).catch(function () {});
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function () {
+            shareToast.textContent = 'Skor metni kopyalandı, arkadaşlarına yapıştır!';
+          }).catch(function () {
+            copyFallback(text);
+            shareToast.textContent = 'Skor metni kopyalandı!';
+          });
+        } else {
+          copyFallback(text);
+          shareToast.textContent = 'Skor metni kopyalandı!';
+        }
+      });
+
+      btnRestartTop.addEventListener('click', function (e) {
+        e.stopPropagation();
+        initAudio();
+        resetGame(true);
+      });
+
+      btnMute.addEventListener('click', function (e) {
+        e.stopPropagation();
+        isMuted = !isMuted;
+        iconSoundOn.style.display = isMuted ? 'none' : 'block';
+        iconSoundOff.style.display = isMuted ? 'block' : 'none';
+      });
+
+      btnModeEndless.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (mode === 'endless') return;
+        mode = 'endless';
+        btnModeEndless.classList.add('active');
+        btnModeDaily.classList.remove('active');
+        resetGame(gameState !== 'menu');
+      });
+
+      btnModeDaily.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (mode === 'daily') return;
+        mode = 'daily';
+        btnModeDaily.classList.add('active');
+        btnModeEndless.classList.remove('active');
+        resetGame(gameState !== 'menu');
+      });
+
+      window.addEventListener('keydown', function (e) {
+        if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+          e.preventDefault();
+          if (!e.repeat) {
+            handlePrimaryAction();
+          }
+        } else if (e.code === 'KeyR') {
+          e.preventDefault();
+          initAudio();
+          resetGame(true);
+        } else if (e.code === 'KeyM') {
+          e.preventDefault();
+          isMuted = !isMuted;
+          iconSoundOn.style.display = isMuted ? 'none' : 'block';
+          iconSoundOff.style.display = isMuted ? 'block' : 'none';
+        }
+      });
+
+      window.addEventListener('resize', handleResize);
+
+      window.addEventListener('load', function () {
+        initBackdrop();
+        updateCanvasSize();
+        resetGame(false);
+        render(performance.now() / 1000);
+        if (rafId) cancelAnimationFrame(rafId);
+        lastTime = performance.now();
+        rafId = requestAnimationFrame(loop);
+      });
+    })();
+  </script>
+</body>
+</html>
