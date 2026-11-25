@@ -1,7 +1,7 @@
 {
   "name": "Swingo — Tek Dokunuş Sarkaç Oyunu",
   "short_name": "Swingo",
-  "description": "Tek dokunuşla ipi bırak, lazer bariyerleri aş ve en yüksek skoru yap.",
+  "description": "Tek dokunuşla ipi bırak, lazer bariyerleri aş ve global liderlik tablosunda zirveye çık.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",

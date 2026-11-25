@@ -1,10 +1,9 @@
-# Swingo — Tek Dokunuş Sarkaç Oyunu
+# Swingo — Global Liderlik Tablosu ile Vercel Yayını
 
-Mobil uyumlu, sıfır bağımlılıklı HTML5 Canvas sarkaç arcade oyunu.
+## Global Liderlik Tablosunu 3 Adımda Aktif Etme (Ücretsiz)
 
-## Özellikler
-- **Tek Dokunuş Fizik & Ritim:** 35°–65° sapan penceresi, hafifletilmiş çıkış yerçekimi ve 4 farklı kanca türü (Standart, Altın, Kırılgan, Mor İtici).
-- **Mobil Öncelikli Tasarım:** Dikey (portrait) telefon ekranlarında kamerayı otomatik ölçekler, `100dvh` ve `safe-area-inset` destekler.
-- **Sosyal Paylaşım:** Oyun sonu ekranında tek dokunuşla skor paylaşımı (`navigator.share` + pano yedeği) ve **Günün Parkuru (Daily Seed)** modu.
+Bu paket sıfır bağımlılıklı `/api/leaderboard.js` serverless fonksiyonu ile gelir.
 
-
+1. Bu klasördeki dosyaları `github.com/furkanoktay-sevimli/swingo` reposuna gönder (`git add . && git commit -m "Add global leaderboard" && git push`).
+2. Vercel panelinde **Swingo** projeni aç → üst menüden **Storage** sekmesine gir → **Create Database** → **Upstash Redis** (ücretsiz plan) seçip projene bağla.
+3. Vercel otomatik olarak `KV_REST_API_URL` ve `KV_REST_API_TOKEN` (veya `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`) ortam değişkenlerini ekleyecektir. Son olarak **Deployments → Redeploy** yap; **Tüm Zamanlar** ve **Günün Parkuru** global liderlik tabloları anında canlıya geçer.

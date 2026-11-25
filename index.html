@@ -463,6 +463,159 @@
       opacity: 1;
     }
 
+    /* Leaderboard & Nickname UI */
+    .submit-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .nick-input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.85);
+      color: #f8fafc;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 12px;
+      outline: none;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    .nick-input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.22);
+    }
+
+    .submit-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      color: #081022;
+      background: #7dd3fc;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.12s ease, filter 0.15s ease;
+    }
+
+    .submit-btn:hover { filter: brightness(1.08); }
+    .submit-btn:active { transform: scale(0.96); }
+    .submit-btn:disabled { opacity: 0.45; cursor: default; }
+
+    .lb-card {
+      max-width: 430px;
+      max-height: 84dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .lb-title {
+      font-size: 20px;
+      font-weight: 900;
+      color: #ffffff;
+    }
+
+    .lb-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 12px;
+    }
+
+    .lb-tab {
+      border: none;
+      background: transparent;
+      color: #94a3b8;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .lb-tab.active {
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      color: #081022;
+    }
+
+    .lb-list {
+      overflow-y: auto;
+      max-height: 46dvh;
+      text-align: left;
+      margin-bottom: 12px;
+      padding-right: 2px;
+    }
+
+    .lb-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.62);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .lb-row.me {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.48);
+    }
+
+    .lb-rank {
+      width: 28px;
+      font-weight: 900;
+      color: #94a3b8;
+      flex-shrink: 0;
+    }
+
+    .lb-rank.r1 { color: #fbbf24; }
+    .lb-rank.r2 { color: #e2e8f0; }
+    .lb-rank.r3 { color: #fb923c; }
+
+    .lb-name {
+      flex: 1;
+      font-weight: 700;
+      color: #f8fafc;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .lb-score {
+      font-weight: 900;
+      color: #7dd3fc;
+      white-space: nowrap;
+    }
+
+    .lb-status {
+      font-size: 11.5px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+    }
+
     @media (max-width: 520px) {
       .hud-top { padding: 10px 12px; }
       .mode-btn { font-size: 11px; padding: 5px 9px; }
@@ -495,6 +648,16 @@
       </div>
 
       <div class="hud-right">
+        <button id="btn-leaderboard" class="icon-btn" type="button" title="Liderlik Tablosu" aria-label="Liderlik Tablosu">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+            <path d="M4 22h16"></path>
+            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+          </svg>
+        </button>
         <button id="btn-mute" class="icon-btn" type="button" title="Sesi Aç / Kapat" aria-label="Sesi Aç veya Kapat">
           <svg id="icon-sound-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -556,10 +719,36 @@
             <div id="final-perfect" class="stat-num cyan">0</div>
           </div>
         </div>
+        <div class="submit-row">
+          <input id="nick-input" class="nick-input" type="text" maxlength="16" placeholder="Oyuncu adın (Skor kaydet)" autocomplete="nickname" />
+          <button id="btn-submit-score" class="submit-btn" type="button">KAYDET</button>
+        </div>
         <button id="btn-retry" class="primary-btn" type="button">TEKRAR DENE</button>
         <button id="btn-share" class="secondary-btn" type="button">SKORU ARKADAŞLARINLA PAYLAŞ</button>
         <div id="share-toast" class="share-toast" aria-live="polite"></div>
         <div class="hint-line">Hızlı tekrar: Boşluk tuşu veya dokun</div>
+      </div>
+    </div>
+
+    <!-- Global Leaderboard Overlay -->
+    <div id="leaderboard-overlay" class="overlay">
+      <div class="card lb-card">
+        <div class="lb-header">
+          <div class="lb-title">Liderlik Tablosu</div>
+          <button id="btn-close-lb" class="icon-btn" type="button" aria-label="Kapat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="lb-tabs" role="tablist">
+          <button id="lb-tab-endless" class="lb-tab active" type="button">Tüm Zamanlar</button>
+          <button id="lb-tab-daily" class="lb-tab" type="button">Günün Parkuru</button>
+        </div>
+        <div id="lb-status" class="lb-status"></div>
+        <div id="lb-list" class="lb-list"></div>
+        <button id="btn-lb-play" class="primary-btn" type="button">OYUNA DÖN</button>
       </div>
     </div>
   </div>
@@ -590,6 +779,16 @@
       const btnRetry = document.getElementById('btn-retry');
       const btnShare = document.getElementById('btn-share');
       const shareToast = document.getElementById('share-toast');
+      const btnLeaderboard = document.getElementById('btn-leaderboard');
+      const leaderboardOverlay = document.getElementById('leaderboard-overlay');
+      const btnCloseLb = document.getElementById('btn-close-lb');
+      const btnLbPlay = document.getElementById('btn-lb-play');
+      const lbTabEndless = document.getElementById('lb-tab-endless');
+      const lbTabDaily = document.getElementById('lb-tab-daily');
+      const lbStatusEl = document.getElementById('lb-status');
+      const lbListEl = document.getElementById('lb-list');
+      const nickInput = document.getElementById('nick-input');
+      const btnSubmitScore = document.getElementById('btn-submit-score');
       const btnMute = document.getElementById('btn-mute');
       const btnRestartTop = document.getElementById('btn-restart-top');
       const btnModeEndless = document.getElementById('btn-mode-endless');
@@ -703,6 +902,145 @@
         try {
           localStorage.setItem('swingo_best_' + m, String(val));
         } catch (e) {}
+      }
+
+      // --- Leaderboard Engine (Local Preview Mode; switched to /api/leaderboard in Vercel bundle) ---
+      const USE_REMOTE_API = true;
+      let lbActiveTab = 'endless';
+      let isLeaderboardOpen = false;
+      let scoreSubmittedThisRun = false;
+
+      const DEFAULT_SEED_SCORES = {
+        endless: [],
+        daily: []
+      };
+
+      function loadNickname() {
+        try { return localStorage.getItem('swingo_nickname') || ''; } catch (e) { return ''; }
+      }
+
+      function saveNickname(n) {
+        try { localStorage.setItem('swingo_nickname', n); } catch (e) {}
+      }
+
+      function getLocalBoard(m) {
+        const key = 'swingo_lb_v2_' + m + (m === 'daily' ? '_' + getDailySeed() : '');
+        try {
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          }
+        } catch (e) {}
+        return DEFAULT_SEED_SCORES[m].slice();
+      }
+
+      function saveLocalBoard(m, list) {
+        const key = 'swingo_lb_v2_' + m + (m === 'daily' ? '_' + getDailySeed() : '');
+        try { localStorage.setItem(key, JSON.stringify(list.slice(0, 20))); } catch (e) {}
+      }
+
+      function renderLeaderboardRows(entries, myName) {
+        lbListEl.innerHTML = '';
+        if (!entries || entries.length === 0) {
+          lbListEl.innerHTML = '<div class="lb-status">Henüz kayıtlı skor yok. İlk rekoru sen kır!</div>';
+          return;
+        }
+        const meLower = (myName || '').trim().toLowerCase();
+        entries.forEach(function (item, idx) {
+          const row = document.createElement('div');
+          const isMe = meLower && item.name.toLowerCase() === meLower;
+          row.className = 'lb-row' + (isMe ? ' me' : '');
+          const rankClass = idx === 0 ? 'r1' : (idx === 1 ? 'r2' : (idx === 2 ? 'r3' : ''));
+          row.innerHTML =
+            '<span class="lb-rank ' + rankClass + '">#' + (idx + 1) + '</span>' +
+            '<span class="lb-name"></span>' +
+            '<span class="lb-score">' + Number(item.score) + '</span>';
+          row.querySelector('.lb-name').textContent = item.name;
+          lbListEl.appendChild(row);
+        });
+      }
+
+      async function fetchLeaderboard(m) {
+        lbStatusEl.textContent = 'Yükleniyor...';
+        const myName = loadNickname();
+        if (USE_REMOTE_API) {
+          try {
+            const res = await fetch('/api/leaderboard?mode=' + encodeURIComponent(m));
+            if (res.ok) {
+              const data = await res.json();
+              if (data && Array.isArray(data.entries)) {
+                lbStatusEl.textContent = data.source === 'kv'
+                  ? 'Canlı Global Sıralama'
+                  : 'Yerel Önizleme (Vercel Storage bağlanınca global olur)';
+                renderLeaderboardRows(data.entries, myName);
+                return;
+              }
+            }
+          } catch (e) {}
+        }
+        lbStatusEl.textContent = 'Önizleme Sıralaması (Vercel paketinde canlı global API aktif)';
+        renderLeaderboardRows(getLocalBoard(m), myName);
+      }
+
+      async function submitScoreToLeaderboard() {
+        const rawName = (nickInput.value || '').trim().replace(/[<>]/g, '').slice(0, 16);
+        if (rawName.length < 2) {
+          shareToast.textContent = 'En az 2 karakterlik bir oyuncu adı yaz.';
+          nickInput.focus();
+          return;
+        }
+        if (score <= 0 || scoreSubmittedThisRun) return;
+
+        saveNickname(rawName);
+        btnSubmitScore.disabled = true;
+        btnSubmitScore.textContent = '...';
+
+        if (USE_REMOTE_API) {
+          try {
+            const res = await fetch('/api/leaderboard', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: rawName, score: score, mode: mode })
+            });
+            if (res.ok) {
+              const data = await res.json();
+              scoreSubmittedThisRun = true;
+              btnSubmitScore.textContent = 'KAYDEDİLDİ';
+              shareToast.textContent = data.rank ? ('Global #' + data.rank + '. sıraya yerleştin!') : 'Skor kaydedildi!';
+              return;
+            }
+          } catch (e) {}
+        }
+
+        // Local fallback / preview mode
+        const board = getLocalBoard(mode);
+        const existing = board.find(function (x) { return x.name.toLowerCase() === rawName.toLowerCase(); });
+        if (existing) {
+          if (score > existing.score) existing.score = score;
+        } else {
+          board.push({ name: rawName, score: score });
+        }
+        board.sort(function (a, b) { return b.score - a.score; });
+        saveLocalBoard(mode, board);
+        const rank = board.findIndex(function (x) { return x.name.toLowerCase() === rawName.toLowerCase(); }) + 1;
+        scoreSubmittedThisRun = true;
+        btnSubmitScore.textContent = 'KAYDEDİLDİ';
+        shareToast.textContent = '#' + rank + '. sıraya yerleştin!';
+      }
+
+      function openLeaderboard(tabMode) {
+        isLeaderboardOpen = true;
+        lbActiveTab = tabMode || mode;
+        lbTabEndless.classList.toggle('active', lbActiveTab === 'endless');
+        lbTabDaily.classList.toggle('active', lbActiveTab === 'daily');
+        leaderboardOverlay.classList.add('visible');
+        fetchLeaderboard(lbActiveTab);
+      }
+
+      function closeLeaderboard() {
+        isLeaderboardOpen = false;
+        leaderboardOverlay.classList.remove('visible');
       }
 
       // --- Difficulty Phase Helper (Snappier Arcade Curve) ---
@@ -1083,6 +1421,9 @@
         gameoverOverlay.classList.remove('visible');
         newRecordBanner.classList.remove('show');
         shareToast.textContent = '';
+        scoreSubmittedThisRun = false;
+        btnSubmitScore.disabled = false;
+        btnSubmitScore.textContent = 'KAYDET';
         updateHud();
         updateWindDisplay();
 
@@ -1178,6 +1519,7 @@
 
       // --- Player Input Action ---
       function handlePrimaryAction() {
+        if (isLeaderboardOpen) return;
         initAudio();
 
         if (gameState === 'menu') {
@@ -1243,6 +1585,9 @@
         } else {
           newRecordBanner.classList.remove('show');
         }
+        nickInput.value = loadNickname();
+        btnSubmitScore.disabled = score <= 0;
+        btnSubmitScore.textContent = 'KAYDET';
         gameoverOverlay.classList.add('visible');
       }
 
@@ -1904,7 +2249,60 @@
         resetGame(gameState !== 'menu');
       });
 
+      btnSubmitScore.addEventListener('click', function (e) {
+        e.stopPropagation();
+        submitScoreToLeaderboard();
+      });
+
+      nickInput.addEventListener('keydown', function (e) {
+        if (e.code === 'Enter') {
+          e.preventDefault();
+          submitScoreToLeaderboard();
+        }
+      });
+
+      btnLeaderboard.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openLeaderboard(mode);
+      });
+
+      btnCloseLb.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closeLeaderboard();
+      });
+
+      btnLbPlay.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closeLeaderboard();
+      });
+
+      leaderboardOverlay.addEventListener('click', function (e) {
+        if (e.target === leaderboardOverlay) closeLeaderboard();
+      });
+
+      lbTabEndless.addEventListener('click', function (e) {
+        e.stopPropagation();
+        lbActiveTab = 'endless';
+        lbTabEndless.classList.add('active');
+        lbTabDaily.classList.remove('active');
+        fetchLeaderboard('endless');
+      });
+
+      lbTabDaily.addEventListener('click', function (e) {
+        e.stopPropagation();
+        lbActiveTab = 'daily';
+        lbTabDaily.classList.add('active');
+        lbTabEndless.classList.remove('active');
+        fetchLeaderboard('daily');
+      });
+
       window.addEventListener('keydown', function (e) {
+        if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+        if (e.code === 'Escape' && isLeaderboardOpen) {
+          closeLeaderboard();
+          return;
+        }
+        if (isLeaderboardOpen) return;
         if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
           e.preventDefault();
           if (!e.repeat) {
